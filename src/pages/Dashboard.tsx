@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import {
   Users,
   MapPin,
@@ -55,7 +54,7 @@ const topPromotores = [
 
 export default function Dashboard() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 animate-fadeIn">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -79,12 +78,10 @@ export default function Dashboard() {
         {statsData.map((stat, index) => {
           const Icon = stat.icon;
           return (
-            <motion.div
+            <div
               key={stat.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-shadow"
+              className="bg-white rounded-xl p-5 shadow-sm border border-slate-100 hover:shadow-md transition-shadow animate-slideUp"
+              style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}
             >
               <div className="flex items-start justify-between">
                 <div>
@@ -104,7 +101,7 @@ export default function Dashboard() {
                 <span className="text-sm font-medium text-emerald-600">{stat.change}</span>
                 <span className="text-sm text-slate-400">vs. semana anterior</span>
               </div>
-            </motion.div>
+            </div>
           );
         })}
       </div>
@@ -112,12 +109,7 @@ export default function Dashboard() {
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Weekly Visits Chart */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white rounded-xl p-6 shadow-sm border border-slate-100"
-        >
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100 animate-slideUp" style={{ animationDelay: '300ms', animationFillMode: 'both' }}>
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-semibold text-slate-800">Visitas da Semana</h3>
@@ -137,15 +129,10 @@ export default function Dashboard() {
               <Bar dataKey="concluidas" fill="#22c55e" radius={[4, 4, 0, 0]} name="Concluídas" />
             </BarChart>
           </ResponsiveContainer>
-        </motion.div>
+        </div>
 
         {/* Monthly Performance */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-white rounded-xl p-6 shadow-sm border border-slate-100"
-        >
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100 animate-slideUp" style={{ animationDelay: '400ms', animationFillMode: 'both' }}>
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-semibold text-slate-800">Performance Mensal</h3>
@@ -176,18 +163,13 @@ export default function Dashboard() {
               </defs>
             </AreaChart>
           </ResponsiveContainer>
-        </motion.div>
+        </div>
       </div>
 
       {/* Bottom Row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Recent Activities */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm border border-slate-100"
-        >
+        <div className="lg:col-span-2 bg-white rounded-xl p-6 shadow-sm border border-slate-100 animate-slideUp" style={{ animationDelay: '500ms', animationFillMode: 'both' }}>
           <h3 className="text-lg font-semibold text-slate-800 mb-4">Atividades Recentes</h3>
           <div className="space-y-3">
             {recentActivities.map((activity) => (
@@ -204,15 +186,10 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
         {/* Top Promotores */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="bg-white rounded-xl p-6 shadow-sm border border-slate-100"
-        >
+        <div className="bg-white rounded-xl p-6 shadow-sm border border-slate-100 animate-slideUp" style={{ animationDelay: '600ms', animationFillMode: 'both' }}>
           <h3 className="text-lg font-semibold text-slate-800 mb-4">Top Promotores</h3>
           <div className="space-y-4">
             {topPromotores.map((promotor, index) => (
@@ -229,7 +206,7 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

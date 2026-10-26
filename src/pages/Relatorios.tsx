@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import {
   BarChart3,
   TrendingUp,
@@ -66,7 +65,7 @@ const summaryCards = [
 
 export default function Relatorios() {
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 animate-fadeIn">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -91,12 +90,10 @@ export default function Relatorios() {
         {summaryCards.map((card, index) => {
           const Icon = card.icon;
           return (
-            <motion.div
+            <div
               key={card.label}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm"
+              className="bg-white rounded-xl p-5 border border-slate-100 shadow-sm animate-slideUp"
+              style={{ animationDelay: `${index * 100}ms`, animationFillMode: 'both' }}
             >
               <div className="flex items-center justify-between mb-3">
                 <div className={`p-2 rounded-lg ${card.bg}`}>
@@ -108,7 +105,7 @@ export default function Relatorios() {
               </div>
               <p className="text-2xl font-bold text-slate-800">{card.value}</p>
               <p className="text-sm text-slate-500 mt-1">{card.label}</p>
-            </motion.div>
+            </div>
           );
         })}
       </div>
@@ -116,12 +113,7 @@ export default function Relatorios() {
       {/* Charts Row 1 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Performance by Region */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm"
-        >
+        <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm animate-slideUp" style={{ animationDelay: '300ms', animationFillMode: 'both' }}>
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-semibold text-slate-800">Performance por Região</h3>
@@ -140,15 +132,10 @@ export default function Relatorios() {
               <Bar dataKey="meta" fill="#e2e8f0" radius={[4, 4, 0, 0]} name="Meta" />
             </BarChart>
           </ResponsiveContainer>
-        </motion.div>
+        </div>
 
         {/* Visit Types Pie */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
-          className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm"
-        >
+        <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm animate-slideUp" style={{ animationDelay: '400ms', animationFillMode: 'both' }}>
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-semibold text-slate-800">Tipos de Visita</h3>
@@ -175,18 +162,13 @@ export default function Relatorios() {
               <Legend />
             </RePieChart>
           </ResponsiveContainer>
-        </motion.div>
+        </div>
       </div>
 
       {/* Charts Row 2 */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Daily Trend */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm"
-        >
+        <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm animate-slideUp" style={{ animationDelay: '500ms', animationFillMode: 'both' }}>
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-semibold text-slate-800">Tendência Diária</h3>
@@ -205,15 +187,10 @@ export default function Relatorios() {
               <Line type="monotone" dataKey="concluidas" stroke="#22c55e" strokeWidth={2} name="Concluídas" />
             </LineChart>
           </ResponsiveContainer>
-        </motion.div>
+        </div>
 
         {/* Monthly Goals */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-          className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm"
-        >
+        <div className="bg-white rounded-xl p-6 border border-slate-100 shadow-sm animate-slideUp" style={{ animationDelay: '600ms', animationFillMode: 'both' }}>
           <div className="flex items-center justify-between mb-6">
             <div>
               <h3 className="text-lg font-semibold text-slate-800">Metas Mensais</h3>
@@ -232,7 +209,7 @@ export default function Relatorios() {
               <Bar dataKey="target" fill="#e2e8f0" radius={[4, 4, 0, 0]} name="Meta" />
             </BarChart>
           </ResponsiveContainer>
-        </motion.div>
+        </div>
       </div>
     </div>
   );

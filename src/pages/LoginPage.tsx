@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import { Zap, Eye, EyeOff } from 'lucide-react';
 
 interface LoginPageProps {
@@ -29,12 +28,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
         <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary-600/20 rounded-full blur-3xl" />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="relative w-full max-w-md"
-      >
+      <div className="relative w-full max-w-md animate-scaleIn">
         <div className="bg-white/10 backdrop-blur-xl rounded-2xl p-8 shadow-2xl border border-white/20">
           {/* Logo */}
           <div className="text-center mb-8">
@@ -112,7 +106,7 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
             </a>
           </p>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

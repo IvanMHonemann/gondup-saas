@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import {
   MapPin,
   Clock,
@@ -8,7 +7,6 @@ import {
   AlertCircle,
   Navigation,
   Calendar,
-  Filter,
   Search,
   ChevronDown
 } from 'lucide-react';
@@ -79,7 +77,7 @@ export default function Visitas() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 animate-fadeIn">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -148,18 +146,13 @@ export default function Visitas() {
       {/* Visit List */}
       <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
         <div className="divide-y divide-slate-100">
-          {filtered.map((visita, index) => {
+          {filtered.map((visita) => {
             const statusInfo = statusConfig[visita.status];
             const StatusIcon = statusInfo.icon;
             const isExpanded = expandedId === visita.id;
 
             return (
-              <motion.div
-                key={visita.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: index * 0.03 }}
-              >
+              <div key={visita.id}>
                 <button
                   onClick={() => setExpandedId(isExpanded ? null : visita.id)}
                   className="w-full flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors text-left"
@@ -194,16 +187,12 @@ export default function Visitas() {
                     <span className="text-sm text-slate-600">{visita.promotor}</span>
                   </div>
 
-                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
+                  <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
                 </button>
 
                 {/* Expanded details */}
                 {isExpanded && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }}
-                    animate={{ height: 'auto', opacity: 1 }}
-                    className="px-4 pb-4 ml-[114px]"
-                  >
+                  <div className="px-4 pb-4 ml-[114px] animate-slideUp">
                     <div className="bg-slate-50 rounded-lg p-4 space-y-2">
                       <div className="flex items-center gap-2">
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusInfo.color}`}>
@@ -219,9 +208,9 @@ export default function Visitas() {
                         <p className="text-sm text-slate-600"><strong>Observações:</strong> {visita.notes}</p>
                       )}
                     </div>
-                  </motion.div>
+                  </div>
                 )}
-              </motion.div>
+              </div>
             );
           })}
         </div>

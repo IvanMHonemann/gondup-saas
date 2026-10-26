@@ -1,4 +1,3 @@
-import { motion } from 'framer-motion';
 import {
   LayoutDashboard,
   Users,
@@ -30,25 +29,19 @@ const menuItems: { id: Page; label: string; icon: React.ElementType }[] = [
 
 export default function Sidebar({ currentPage, onNavigate, isOpen, onToggle, onLogout }: SidebarProps) {
   return (
-    <motion.aside
-      animate={{ width: isOpen ? 256 : 64 }}
-      transition={{ duration: 0.3 }}
-      className="fixed left-0 top-0 h-full bg-gradient-to-b from-slate-900 to-slate-800 text-white z-50 flex flex-col shadow-xl"
+    <aside
+      className="fixed left-0 top-0 h-full bg-gradient-to-b from-slate-900 to-slate-800 text-white z-50 flex flex-col shadow-xl transition-all duration-300"
+      style={{ width: isOpen ? '16rem' : '4rem' }}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-slate-700">
         {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="flex items-center gap-2"
-          >
+          <div className="flex items-center gap-2 animate-fadeIn">
             <div className="w-8 h-8 bg-primary-500 rounded-lg flex items-center justify-center">
               <Zap className="w-5 h-5 text-white" />
             </div>
             <span className="font-bold text-lg">Promotores</span>
-          </motion.div>
+          </div>
         )}
         <button
           onClick={onToggle}
@@ -75,13 +68,9 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onToggle, onL
             >
               <Icon className="w-5 h-5 flex-shrink-0" />
               {isOpen && (
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  className="text-sm font-medium"
-                >
+                <span className="text-sm font-medium">
                   {item.label}
-                </motion.span>
+                </span>
               )}
             </button>
           );
@@ -98,6 +87,6 @@ export default function Sidebar({ currentPage, onNavigate, isOpen, onToggle, onL
           {isOpen && <span className="text-sm font-medium">Sair</span>}
         </button>
       </div>
-    </motion.aside>
+    </aside>
   );
 }

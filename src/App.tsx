@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { AnimatePresence } from 'framer-motion';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Promotores from './pages/Promotores';
@@ -45,10 +44,13 @@ export default function App() {
         onToggle={() => setSidebarOpen(!sidebarOpen)}
         onLogout={() => setIsLoggedIn(false)}
       />
-      <main className={`flex-1 overflow-auto transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-16'}`}>
-        <AnimatePresence mode="wait">
+      <main
+        className="flex-1 overflow-auto transition-all duration-300"
+        style={{ marginLeft: sidebarOpen ? '16rem' : '4rem' }}
+      >
+        <div className="animate-fadeIn">
           {renderPage()}
-        </AnimatePresence>
+        </div>
       </main>
     </div>
   );

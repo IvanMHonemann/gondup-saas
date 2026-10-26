@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { motion } from 'framer-motion';
 import {
   User,
   Bell,
@@ -287,7 +286,7 @@ export default function Configuracoes() {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-6 animate-fadeIn">
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-800">Configurações</h1>
@@ -319,12 +318,9 @@ export default function Configuracoes() {
         </div>
 
         {/* Content */}
-        <motion.div
+        <div
           key={activeTab}
-          initial={{ opacity: 0, x: 10 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.2 }}
-          className="flex-1 bg-white rounded-xl border border-slate-100 shadow-sm p-6"
+          className="flex-1 bg-white rounded-xl border border-slate-100 shadow-sm p-6 animate-fadeIn"
         >
           {renderContent()}
           <div className="mt-8 pt-6 border-t border-slate-200 flex justify-end">
@@ -333,7 +329,7 @@ export default function Configuracoes() {
               Salvar alterações
             </button>
           </div>
-        </motion.div>
+        </div>
       </div>
     </div>
   );
