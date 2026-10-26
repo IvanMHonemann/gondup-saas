@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   User,
   Bell,
@@ -8,7 +8,8 @@ import {
   Database,
   Save,
   ToggleLeft,
-  ToggleRight
+  ToggleRight,
+  Check
 } from 'lucide-react';
 
 type Tab = 'perfil' | 'notificacoes' | 'seguranca' | 'aparencia' | 'sistema';
@@ -30,6 +31,7 @@ interface ToggleSetting {
 
 export default function Configuracoes() {
   const [activeTab, setActiveTab] = useState<Tab>('perfil');
+  const [showToast, setShowToast] = useState(false);
   const [notifications, setNotifications] = useState<ToggleSetting[]>([
     { id: 'email', label: 'Notificações por e-mail', description: 'Receber resumos diários por e-mail', enabled: true },
     { id: 'push', label: 'Notificações push', description: 'Alertas em tempo real no navegador', enabled: true },
@@ -43,6 +45,17 @@ export default function Configuracoes() {
       n.id === id ? { ...n, enabled: !n.enabled } : n
     ));
   };
+
+  const handleSave = () => {
+    setShowToast(true);
+  };
+
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => setShowToast(false), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [showToast]);
 
   const renderContent = () => {
     switch (activeTab) {
@@ -287,6 +300,14 @@ export default function Configuracoes() {
 
   return (
     <div className="p-6 space-y-6 animate-fadeIn">
+      {/* Toast */}
+      {showToast && (
+        <div className="fixed top-4 right-4 z-[100] flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg bg-emerald-500 text-white animate-slideUp">
+          <Check className="w-4 h-4" />
+          <span className="text-sm font-medium">Configurações salvas com sucesso</span>
+        </div>
+      )}
+
       {/* Header */}
       <div>
         <h1 className="text-2xl font-bold text-slate-800">Configurações</h1>
@@ -324,7 +345,10 @@ export default function Configuracoes() {
         >
           {renderContent()}
           <div className="mt-8 pt-6 border-t border-slate-200 flex justify-end">
-            <button className="flex items-center gap-2 px-5 py-2.5 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg shadow-sm transition-colors">
+            <button
+              onClick={handleSave}
+              className="flex items-center gap-2 px-5 py-2.5 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg shadow-sm transition-colors active:scale-95"
+            >
               <Save className="w-4 h-4" />
               Salvar alterações
             </button>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Search,
   Plus,
@@ -12,7 +12,9 @@ import {
   Trash2,
   X,
   UserCheck,
-  UserX
+  UserX,
+  AlertTriangle,
+  Check
 } from 'lucide-react';
 
 interface Promotor {
@@ -50,22 +52,121 @@ export default function Promotores() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState<string>('todos');
   const [showModal, setShowModal] = useState(false);
-  const [selectedPromotor, setSelectedPromotor] = useState<Promotor | null>(null);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState<number | null>(null);
+  const [editingPromotor, setEditingPromotor] = useState<Promotor | null>(null);
+  const [openMenuId, setOpenMenuId] = useState<number | null>(null);
+  const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  // Form state
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    region: '',
+  });
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setOpenMenuId(null);
+      }
+    };
+    if (openMenuId !== null) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [openMenuId]);
+
+  // Auto-dismiss toast
+  useEffect(() => {
+    if (toast) {
+      const timer = setTimeout(() => setToast(null), 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   const filtered = promotores.filter((p) => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.region.toLowerCase().includes(searchTerm.toLowerCase());
+      p.region.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      p.email.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesFilter = filterStatus === 'todos' || p.status === filterStatus;
     return matchesSearch && matchesFilter;
   });
 
   const handleDelete = (id: number) => {
     setPromotores(promotores.filter(p => p.id !== id));
-    setSelectedPromotor(null);
+    setShowDeleteConfirm(null);
+    setOpenMenuId(null);
+    setToast({ message: 'Promotor excluído com sucesso', type: 'success' });
+  };
+
+  const handleEdit = (promotor: Promotor) => {
+    setEditingPromotor(promotor);
+    setFormData({
+      name: promotor.name,
+      email: promotor.email,
+      phone: promotor.phone,
+      region: promotor.region,
+    });
+    setShowModal(true);
+    setOpenMenuId(null);
+  };
+
+  const handleSave = () => {
+    if (!formData.name || !formData.email || !formData.region) {
+      setToast({ message: 'Preencha todos os campos obrigatórios', type: 'error' });
+      return;
+    }
+
+    if (editingPromotor) {
+      // Update existing
+      setPromotores(promotores.map(p =>
+        p.id === editingPromotor.id
+          ? { ...p, name: formData.name, email: formData.email, phone: formData.phone, region: formData.region }
+          : p
+      ));
+      setToast({ message: 'Promotor atualizado com sucesso', type: 'success' });
+    } else {
+      // Create new
+      const newPromotor: Promotor = {
+        id: Math.max(...promotores.map(p => p.id)) + 1,
+        name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        region: formData.region,
+        status: 'ativo',
+        visits: 0,
+        rating: 0,
+        avatar: formData.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2),
+        joinDate: new Date().toISOString().split('T')[0],
+      };
+      setPromotores([...promotores, newPromotor]);
+      setToast({ message: 'Promotor cadastrado com sucesso', type: 'success' });
+    }
+
+    closeModal();
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setEditingPromotor(null);
+    setFormData({ name: '', email: '', phone: '', region: '' });
   };
 
   return (
     <div className="p-6 space-y-6 animate-fadeIn">
+      {/* Toast Notification */}
+      {toast && (
+        <div className={`fixed top-4 right-4 z-[100] flex items-center gap-2 px-4 py-3 rounded-lg shadow-lg animate-slideUp ${
+          toast.type === 'success' ? 'bg-emerald-500 text-white' : 'bg-red-500 text-white'
+        }`}>
+          {toast.type === 'success' ? <Check className="w-4 h-4" /> : <AlertTriangle className="w-4 h-4" />}
+          <span className="text-sm font-medium">{toast.message}</span>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -73,7 +174,7 @@ export default function Promotores() {
           <p className="text-slate-500 mt-1">{promotores.length} promotores cadastrados</p>
         </div>
         <button
-          onClick={() => setShowModal(true)}
+          onClick={() => { setEditingPromotor(null); setFormData({ name: '', email: '', phone: '', region: '' }); setShowModal(true); }}
           className="flex items-center gap-2 px-4 py-2.5 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg shadow-sm transition-colors"
         >
           <Plus className="w-4 h-4" />
@@ -87,7 +188,7 @@ export default function Promotores() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
-            placeholder="Buscar por nome ou região..."
+            placeholder="Buscar por nome, região ou e-mail..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -107,6 +208,17 @@ export default function Promotores() {
           </select>
         </div>
       </div>
+
+      {/* Empty State */}
+      {filtered.length === 0 && (
+        <div className="bg-white rounded-xl p-12 border border-slate-100 shadow-sm text-center">
+          <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Search className="w-8 h-8 text-slate-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-slate-700">Nenhum promotor encontrado</h3>
+          <p className="text-sm text-slate-500 mt-1">Tente ajustar os filtros ou cadastre um novo promotor.</p>
+        </div>
+      )}
 
       {/* Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
@@ -131,20 +243,24 @@ export default function Promotores() {
                     </p>
                   </div>
                 </div>
-                <div className="relative">
+                <div className="relative" ref={openMenuId === promotor.id ? menuRef : null}>
                   <button
-                    onClick={() => setSelectedPromotor(selectedPromotor?.id === promotor.id ? null : promotor)}
+                    onClick={() => setOpenMenuId(openMenuId === promotor.id ? null : promotor.id)}
                     className="p-1.5 rounded-lg hover:bg-slate-100 transition-colors opacity-0 group-hover:opacity-100"
+                    aria-label="Menu de ações"
                   >
                     <MoreVertical className="w-4 h-4 text-slate-400" />
                   </button>
-                  {selectedPromotor?.id === promotor.id && (
+                  {openMenuId === promotor.id && (
                     <div className="absolute right-0 top-8 w-40 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-10 animate-scaleIn">
-                      <button className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50">
+                      <button
+                        onClick={() => handleEdit(promotor)}
+                        className="w-full flex items-center gap-2 px-3 py-2 text-sm text-slate-600 hover:bg-slate-50"
+                      >
                         <Edit2 className="w-3.5 h-3.5" /> Editar
                       </button>
                       <button
-                        onClick={() => handleDelete(promotor.id)}
+                        onClick={() => { setShowDeleteConfirm(promotor.id); setOpenMenuId(null); }}
                         className="w-full flex items-center gap-2 px-3 py-2 text-sm text-red-600 hover:bg-red-50"
                       >
                         <Trash2 className="w-3.5 h-3.5" /> Excluir
@@ -184,55 +300,116 @@ export default function Promotores() {
         })}
       </div>
 
-      {/* Modal Novo Promotor */}
+      {/* Modal Novo/Edit Promotor */}
       {showModal && (
         <div
           className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fadeIn"
-          onClick={() => setShowModal(false)}
+          onClick={closeModal}
         >
           <div
             onClick={(e) => e.stopPropagation()}
             className="bg-white rounded-2xl p-6 w-full max-w-lg shadow-xl animate-scaleIn"
           >
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-slate-800">Novo Promotor</h2>
-              <button onClick={() => setShowModal(false)} className="p-2 hover:bg-slate-100 rounded-lg">
+              <h2 className="text-xl font-bold text-slate-800">
+                {editingPromotor ? 'Editar Promotor' : 'Novo Promotor'}
+              </h2>
+              <button onClick={closeModal} className="p-2 hover:bg-slate-100 rounded-lg">
                 <X className="w-5 h-5 text-slate-400" />
               </button>
             </div>
             <div className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Nome completo</label>
-                  <input type="text" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Nome do promotor" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Nome completo *</label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    placeholder="Nome do promotor"
+                  />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 mb-1">Região</label>
-                  <input type="text" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Ex: Zona Sul - SP" />
+                  <label className="block text-sm font-medium text-slate-700 mb-1">Região *</label>
+                  <input
+                    type="text"
+                    value={formData.region}
+                    onChange={(e) => setFormData({ ...formData, region: e.target.value })}
+                    className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                    placeholder="Ex: Zona Sul - SP"
+                  />
                 </div>
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1">E-mail</label>
-                <input type="email" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="email@exemplo.com" />
+                <label className="block text-sm font-medium text-slate-700 mb-1">E-mail *</label>
+                <input
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="email@exemplo.com"
+                />
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">Telefone</label>
-                <input type="tel" className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="(00) 00000-0000" />
+                <input
+                  type="tel"
+                  value={formData.phone}
+                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                  placeholder="(00) 00000-0000"
+                />
               </div>
               <div className="flex gap-3 pt-4">
                 <button
-                  onClick={() => setShowModal(false)}
+                  onClick={closeModal}
                   className="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 font-medium rounded-lg hover:bg-slate-50 transition-colors"
                 >
                   Cancelar
                 </button>
                 <button
-                  onClick={() => setShowModal(false)}
+                  onClick={handleSave}
                   className="flex-1 px-4 py-2.5 bg-primary-500 hover:bg-primary-600 text-white font-medium rounded-lg transition-colors"
                 >
-                  Salvar
+                  {editingPromotor ? 'Atualizar' : 'Salvar'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Confirmation Modal */}
+      {showDeleteConfirm !== null && (
+        <div
+          className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-fadeIn"
+          onClick={() => setShowDeleteConfirm(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-xl animate-scaleIn text-center"
+          >
+            <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertTriangle className="w-7 h-7 text-red-500" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-800 mb-2">Confirmar exclusão</h3>
+            <p className="text-sm text-slate-500 mb-6">
+              Tem certeza que deseja excluir este promotor? Esta ação não pode ser desfeita.
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setShowDeleteConfirm(null)}
+                className="flex-1 px-4 py-2.5 border border-slate-200 text-slate-600 font-medium rounded-lg hover:bg-slate-50 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => handleDelete(showDeleteConfirm)}
+                className="flex-1 px-4 py-2.5 bg-red-500 hover:bg-red-600 text-white font-medium rounded-lg transition-colors"
+              >
+                Excluir
+              </button>
             </div>
           </div>
         </div>

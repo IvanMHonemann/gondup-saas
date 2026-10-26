@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from './components/Sidebar';
 import Dashboard from './pages/Dashboard';
 import Promotores from './pages/Promotores';
@@ -13,6 +13,16 @@ export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [currentPage, setCurrentPage] = useState<Page>('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   if (!isLoggedIn) {
     return <LoginPage onLogin={() => setIsLoggedIn(true)} />;
@@ -35,6 +45,15 @@ export default function App() {
     }
   };
 
+  const getMarginLeft = () => {
+    if (isMobile) return '0';
+    return sidebarOpen ? '16rem' : '4rem';
+  };
+
+  const getPaddingTop = () => {
+    return isMobile ? '3.5rem' : '0';
+  };
+
   return (
     <div className="flex h-full bg-slate-100">
       <Sidebar
@@ -46,9 +65,9 @@ export default function App() {
       />
       <main
         className="flex-1 overflow-auto transition-all duration-300"
-        style={{ marginLeft: sidebarOpen ? '16rem' : '4rem' }}
+        style={{ marginLeft: getMarginLeft(), paddingTop: getPaddingTop() }}
       >
-        <div className="animate-fadeIn">
+        <div className="animate-fadeIn" key={currentPage}>
           {renderPage()}
         </div>
       </main>
